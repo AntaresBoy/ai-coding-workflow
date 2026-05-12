@@ -1,3 +1,3 @@
-# Cursor Bundle: OpenSpec Feature
+# Cursor Bundle: openspec-feature
 
-Copy this bundle into the target repository root when you only need OpenSpec change authoring before implementation.
+Copy this bundle into the target repository root. It provides a Cursor rule plus `AGENTS.md` guidance for the `openspec-feature-workflow` workflow.

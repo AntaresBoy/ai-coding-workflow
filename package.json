@@ -6,8 +6,9 @@
     "superpowers-install": "./bin/superpowers-install.js"
   },
   "scripts": {
+    "build": "node scripts/build-dist.js",
     "postinstall": "echo 'Superpowers + OpenSpec team skills installed. Run: npx superpowers-install --help'",
-    "prepublishOnly": "node -e \"const fs=require('fs'); ['dist','team-skills','scripts','templates'].forEach(d=>{if(!fs.existsSync(d)){console.error('Missing: '+d);process.exit(1)}})\""
+    "prepublishOnly": "npm run build && node -e \"const fs=require('fs'); ['dist','team-skills','scripts','templates'].forEach(d=>{if(!fs.existsSync(d)){console.error('Missing: '+d);process.exit(1)}})\""
   },
   "files": [
     "bin/",

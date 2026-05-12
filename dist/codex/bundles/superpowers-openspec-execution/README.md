@@ -1,10 +1,15 @@
-# Codex Bundle: Superpowers -> OpenSpec -> Superpowers
+# Codex Bundle: superpowers-openspec-execution
 
-Install this bundle when you want this exact delivery sequence:
+Install this bundle when you want the `superpowers-openspec-execution-workflow` Codex skill.
 
-1. Explore and converge with Superpowers
-2. Lock the confirmed behavior with OpenSpec
-3. Return to Superpowers for implementation, testing, and verification
-4. Archive the OpenSpec change at the end
+Install target:
 
-Important handoff: after OpenSpec `tasks.md` is complete, stop OpenSpec apply-style execution and return to Superpowers for the implementation plan, TDD, and fresh verification.
+```text
+.codex/skills/
+```
+
+After installation, invoke:
+
+```text
+Use $superpowers-openspec-execution-workflow to run this feature.
+```

@@ -1,3 +1,3 @@
-# Cursor Bundle: Superpowers Feature
+# Cursor Bundle: superpowers-feature
 
-Copy this bundle into the target repository root for design, planning, TDD, and verification without OpenSpec artifact generation.
+Copy this bundle into the target repository root. It provides a Cursor rule plus `AGENTS.md` guidance for the `superpowers-feature-workflow` workflow.

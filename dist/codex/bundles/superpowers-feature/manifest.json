@@ -2,10 +2,9 @@
   "name": "superpowers-feature",
   "tool": "codex",
   "type": "bundle",
-  "description": "Standalone Codex skill bundle for design, planning, TDD, and verification without OpenSpec artifacts.",
   "installTarget": ".codex/skills",
+  "description": "Standalone Codex skill bundle for the superpowers-feature workflow.",
   "contents": [
     "skills/superpowers-feature-workflow"
-  ],
-  "runtimeRequirements": []
+  ]
 }

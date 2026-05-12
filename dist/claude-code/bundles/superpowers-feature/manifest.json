@@ -3,7 +3,6 @@
   "tool": "claude-code",
   "type": "bundle",
   "installTarget": "project-root",
-  "runtimeRequirements": [],
   "contents": [
     ".claude/commands/superpowers-feature-workflow.md",
     "CLAUDE.md"

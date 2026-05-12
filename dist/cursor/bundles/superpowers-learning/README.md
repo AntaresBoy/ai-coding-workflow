@@ -1,3 +1,3 @@
-# Cursor Bundle: Superpowers Learning
+# Cursor Bundle: superpowers-learning
 
-Copy this bundle into the target repository root when you want a reflection workflow for capturing project memory and reusable lessons after meaningful work.
+Copy this bundle into the target repository root. It provides a Cursor rule plus `AGENTS.md` guidance for the `superpowers-learning-workflow` workflow.

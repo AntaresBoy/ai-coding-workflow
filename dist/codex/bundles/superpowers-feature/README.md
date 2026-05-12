@@ -1,3 +1,15 @@
-# Codex Bundle: Superpowers Feature
+# Codex Bundle: superpowers-feature
 
-Install this bundle when you want a standalone Codex skill for clarification, design, planning, TDD, and verification without OpenSpec artifact generation.
+Install this bundle when you want the `superpowers-feature-workflow` Codex skill.
+
+Install target:
+
+```text
+.codex/skills/
+```
+
+After installation, invoke:
+
+```text
+Use $superpowers-feature-workflow to run this feature.
+```

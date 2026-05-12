@@ -1,6 +1,6 @@
-# Codex Bundle: Superpowers Learning
+# Codex Bundle: superpowers-learning
 
-Install this bundle when you want one standalone Codex skill for reflective capture after meaningful work.
+Install this bundle when you want the `superpowers-learning-workflow` Codex skill.
 
 Install target:
 
@@ -11,5 +11,5 @@ Install target:
 After installation, invoke:
 
 ```text
-Use $superpowers-learning-workflow to capture what this session taught us and update the project memory.
+Use $superpowers-learning-workflow to run this feature.
 ```
