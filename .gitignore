@@ -1,0 +1,15 @@
+# Local editor and IDE state
+.idea/
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Runtime caches
+.codex/
+.npm-cache/
+.tmp-verify/
+
+# Node.js
+node_modules/

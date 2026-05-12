@@ -1,0 +1,10 @@
+---
+description: {{ mdc_description }}
+alwaysApply: {{ mdc_always_apply }}
+---
+
+# {{ cursor_rule_title }}
+
+Only apply this rule when the user explicitly asks for this workflow or explicitly names it. Do not treat it as default background behavior.
+
+{{ mdc_body }}

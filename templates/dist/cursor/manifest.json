@@ -1,0 +1,11 @@
+{
+  "name": "{{ bundle_name }}",
+  "tool": "cursor",
+  "type": "bundle",
+  "installTarget": "project-root",
+  "runtimeRequirements": {{ runtime_requirements }},
+  "contents": [
+    ".cursor/rules/{{ mdc_rule_name }}",
+    "AGENTS.md"
+  ]
+}

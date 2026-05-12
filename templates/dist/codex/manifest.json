@@ -1,0 +1,11 @@
+{
+  "name": "{{ bundle_name }}",
+  "tool": "codex",
+  "type": "bundle",
+  "description": "{{ manifest_description }}",
+  "installTarget": ".codex/skills",
+  "contents": [
+    "skills/{{ skill_name }}"
+  ],
+  "runtimeRequirements": {{ runtime_requirements }}
+}
