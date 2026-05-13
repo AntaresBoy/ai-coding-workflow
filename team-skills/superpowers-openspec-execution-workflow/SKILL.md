@@ -20,19 +20,26 @@ This is an explicit opt-in workflow. Do not use it by default. Only use it when 
 
 If `.superpowers-memory/` exists in the repository, read `PROJECT_CONTEXT.md`, `CURRENT_STATE.md`, `DECISIONS.md`, `KNOWN_FAILURES.md`, `VERIFICATION_BASELINE.md`, `TEAM_PREFERENCES.md`, `USER_PROFILE.md`, `AGENT_NOTES.md`, and the newest session journal entries at the start, then update the relevant files before final archive so the next session can resume with real context.
 
+## Start Here
+
+Before creating or applying any OpenSpec change artifacts, run `openspec init` in the target repository. During initialization, select the supported agents by default: Claude Code, Codex, and Cursor.
+
+If OpenSpec is already initialized, treat `openspec init` as an idempotent setup check that may refresh or complete missing OpenSpec configuration and skill files. Do not continue into the workflow until OpenSpec configuration and the selected agent support are present.
+
 ## Required Order
 
-1. Start with `$superpowers-feature-workflow`.
+1. Run `openspec init` and default to Claude Code, Codex, and Cursor as the supported agents.
+2. Start with `$superpowers-feature-workflow`.
    Use it to clarify scope, compare approaches, confirm the solution shape, and capture the design draft.
-2. Move to `$openspec-feature-workflow`.
+3. Move to `$openspec-feature-workflow`.
    Use it to create the change and complete `proposal.md`, `design.md`, `specs/.../spec.md`, and `tasks.md`.
-3. Return to `$superpowers-feature-workflow`.
+4. Return to `$superpowers-feature-workflow`.
    Use it to write the implementation plan, prefer a worktree, execute with TDD, and run fresh verification.
-4. If implementation and specs are aligned after verification, use `$openspec-archive-change` to archive the completed change.
-5. If `.superpowers-memory/` exists, perform a memory alignment check after verification and archive decisions: ensure durable facts, current state, decisions, failure patterns, and session outcome are reflected in the right files.
-6. Prefer `scripts/run-superpowers-memory-closeout.ps1` when you want one command to review the checklist, get update suggestions, and optionally run validation after execution or archive work.
-7. Use `scripts/suggest-superpowers-memory-updates.ps1` if it is still unclear which memory surfaces should be updated after implementation, verification, or archive work.
-8. When memory quality matters for the project, run `scripts/validate-superpowers-memory.ps1` before the final completion claim.
+5. If implementation and specs are aligned after verification, use `$openspec-archive-change` to archive the completed change.
+6. If `.superpowers-memory/` exists, perform a memory alignment check after verification and archive decisions: ensure durable facts, current state, decisions, failure patterns, and session outcome are reflected in the right files.
+7. Prefer `scripts/run-superpowers-memory-closeout.ps1` when you want one command to review the checklist, get update suggestions, and optionally run validation after execution or archive work.
+8. Use `scripts/suggest-superpowers-memory-updates.ps1` if it is still unclear which memory surfaces should be updated after implementation, verification, or archive work.
+9. When memory quality matters for the project, run `scripts/validate-superpowers-memory.ps1` before the final completion claim.
 
 ## Decision Gates
 

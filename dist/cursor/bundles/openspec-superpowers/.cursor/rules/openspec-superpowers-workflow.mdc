@@ -13,15 +13,22 @@ This is an explicit opt-in workflow. Do not use it by default. Only use it when 
 
 If `.superpowers-memory/` exists in the repository, treat it as shared project memory: read it before planning and update it before closing the workflow.
 
+## Start Here
+
+Before creating or applying any OpenSpec change artifacts, run `openspec init` in the target repository. During initialization, select the supported agents by default: Claude Code, Codex, and Cursor.
+
+If OpenSpec is already initialized, treat `openspec init` as an idempotent setup check that may refresh or complete missing OpenSpec configuration and skill files. Do not continue into the workflow until OpenSpec configuration and the selected agent support are present.
+
 ## Required Order
 
-1. Run `$openspec-feature-workflow` first.
+1. Run `openspec init` and default to Claude Code, Codex, and Cursor as the supported agents.
+2. Run `$openspec-feature-workflow` first.
    Use it to clarify the change enough to create and complete `proposal`, `design`, `specs`, and `tasks`.
-2. Stop OpenSpec apply-style execution after `tasks.md` is complete.
-3. Hand off to the Superpowers track for implementation planning, worktree setup, TDD, and verification.
-4. If the project uses OpenSpec archive flow and code, specs, and verification are aligned, archive the change as the final OpenSpec step.
-5. Do not claim completion until verification evidence exists.
-6. If `.superpowers-memory/` exists, update `CURRENT_STATE.md` and add a short journal entry for the session outcome.
+3. Stop OpenSpec apply-style execution after `tasks.md` is complete.
+4. Hand off to the Superpowers track for implementation planning, worktree setup, TDD, and verification.
+5. If the project uses OpenSpec archive flow and code, specs, and verification are aligned, archive the change as the final OpenSpec step.
+6. Do not claim completion until verification evidence exists.
+7. If `.superpowers-memory/` exists, update `CURRENT_STATE.md` and add a short journal entry for the session outcome.
 
 ## When to Use
 

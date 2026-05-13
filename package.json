@@ -1,6 +1,6 @@
 {
   "name": "@axlpq/ai-coding-workflow",
-  "version": "1.0.5",
+  "version": "1.0.5-beta1",
   "description": "AI coding assistant workflow skill library — Superpowers + OpenSpec team skills for Codex, Cursor, and Claude Code",
   "bin": {
     "spec": "./bin/spec.js"
