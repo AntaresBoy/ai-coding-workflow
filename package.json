@@ -1,14 +1,17 @@
 {
-  "name": "@antares/ai-coding-workflow",
-  "version": "1.0.0",
+  "name": "@antares_boy/ai-coding-workflow",
+  "version": "1.0.1",
   "description": "AI coding assistant workflow skill library — Superpowers + OpenSpec team skills for Codex, Cursor, and Claude Code",
   "bin": {
-    "anspec": "./bin/superpowers-install.js"
+    "spec": "./bin/superpowers-install.js"
   },
   "scripts": {
     "build": "node scripts/build-dist.js",
     "postinstall": "echo 'Superpowers + OpenSpec team skills installed. Run: npx superpowers-install --help'",
     "prepublishOnly": "npm run build && node -e \"const fs=require('fs'); ['dist','team-skills','scripts','templates'].forEach(d=>{if(!fs.existsSync(d)){console.error('Missing: '+d);process.exit(1)}})\""
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "bin/",
@@ -38,8 +41,5 @@
   },
   "engines": {
     "node": ">=14.0.0"
-  },
-  "publishConfig": {
-    "registry": "https://nexus.your-company.com/repository/npm-hosted/"
   }
 }
