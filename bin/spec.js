@@ -9,15 +9,15 @@ const SCRIPTS_DIR = path.join(PKG_ROOT, "scripts");
 
 function usage() {
   console.log(`
-Usage: npx superpowers-install <command> [options]
+Usage: npx spec <command> [options]
 
 Commands:
   list           List available workflow bundles and their descriptions
   claude-code    Install workflow bundle into Claude Code project
   cursor         Install workflow bundle into Cursor project
   codex          Install workflow bundle into Codex
-  memory         Install Superpowers memory scaffold into project
-  memory-integ   Install Superpowers memory integration into project tools
+  memory         Install AI coding workflow memory scaffold into project
+  memory-integ   Install AI coding workflow memory integration into project tools
 
 Options:
   --bundle <name>        Bundle name (default: openspec-superpowers)
@@ -33,13 +33,13 @@ Options:
   -h, --help             Show this help message
 
 Examples:
-  npx superpowers-install list
-  npx superpowers-install list --tool claude-code
-  npx superpowers-install claude-code --bundle superpowers-openspec-execution --project-root ./my-project
-  npx superpowers-install cursor --bundle openspec-superpowers --project-root ./my-project
-  npx superpowers-install codex --bundle superpowers-feature --codex-home ~/.codex
-  npx superpowers-install memory --project-root ./my-project
-  npx superpowers-install memory-integ --tool all --project-root ./my-project
+  npx spec list
+  npx spec list --tool claude-code
+  npx spec claude-code --bundle superpowers-openspec-execution --project-root ./my-project
+  npx spec cursor --bundle openspec-superpowers --project-root ./my-project
+  npx spec codex --bundle superpowers-feature --codex-home ~/.codex
+  npx spec memory --project-root ./my-project
+  npx spec memory-integ --tool all --project-root ./my-project
 `);
 }
 
@@ -149,6 +149,14 @@ function listBundles(toolFilter) {
     "superpowers-learning": "superpowers-learning-workflow",
   };
 
+  const bundleDescriptions = {
+    "openspec-superpowers": "从需求澄清到验证完成的完整功能交付流程",
+    "superpowers-openspec-execution": "Superpowers 探索 → OpenSpec 固化 → Superpowers 执行验证 → OpenSpec 归档",
+    "superpowers-feature": "设计、计划、TDD 和验证，不生成 OpenSpec 产物",
+    "openspec-feature": "只做 OpenSpec proposal、design、specs、tasks，不负责实现",
+    "superpowers-learning": "工作结束后沉淀项目记忆、会话结论和可复用经验",
+  };
+
   for (const tool of tools) {
     const bundlesDir = path.join(distDir, tool, "bundles");
     if (!fs.existsSync(bundlesDir)) {
@@ -167,7 +175,7 @@ function listBundles(toolFilter) {
     for (const bundle of bundles.sort()) {
       const manifestPath = path.join(bundlesDir, bundle, "manifest.json");
       const workflowName = bundleToWorkflow[bundle] || `${bundle}-workflow`;
-      const desc = descriptions[workflowName] || "";
+      const desc = bundleDescriptions[bundle] || descriptions[workflowName] || "";
 
       let reqs = [];
       if (fs.existsSync(manifestPath)) {
@@ -186,9 +194,13 @@ function listBundles(toolFilter) {
   }
 
   console.log("\nUsage:");
-  console.log("  npx superpowers-install <tool> --bundle <bundle-name> --project-root <path>");
+  console.log("  npx spec <tool> --bundle <bundle-name> --project-root <path>");
   console.log("\nExample:");
-  console.log("  npx superpowers-install claude-code --bundle superpowers-openspec-execution --project-root ./my-project");
+  console.log("  npx spec claude-code --bundle superpowers-openspec-execution --project-root ./my-project");
+  console.log("\nTips:");
+  console.log("  - Install memory first: npx spec memory --project-root <path>");
+  console.log("  - Then install integration: npx spec memory-integ --tool all --project-root <path>");
+  console.log("  - All workflows are opt-in: they only activate when explicitly invoked");
 }
 
 if (command === "list") {

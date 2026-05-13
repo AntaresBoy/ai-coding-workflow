@@ -18,12 +18,12 @@ Use `team-skills/` directly only when you are:
 ### Via npm (recommended)
 
 ```bash
-npm install @your-company/superpowers-openspec-team-skills
+npm install @axlpq/ai-coding-workflow
 
 # Install a workflow bundle into your project
-npx superpowers-install claude-code --bundle openspec-superpowers --project-root <project-root>
-npx superpowers-install cursor --bundle openspec-superpowers --project-root <project-root>
-npx superpowers-install codex --bundle openspec-superpowers --codex-home ~/.codex
+npx spec claude-code --bundle openspec-superpowers --project-root <project-root>
+npx spec cursor --bundle openspec-superpowers --project-root <project-root>
+npx spec codex --bundle openspec-superpowers --codex-home ~/.codex
 ```
 
 ### Via install scripts (alternative)

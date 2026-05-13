@@ -1,4 +1,4 @@
-# Superpowers + OpenSpec Team Skills 项目详细介绍
+# @axlpq/ai-coding-workflow 项目详细介绍
 
 ## 一、项目定位
 
@@ -267,17 +267,17 @@ superpowers-openspec-team-skills-main/
 
 ```bash
 # 在你的项目中安装包
-npm install @your-company/superpowers-openspec-team-skills
+npm install @axlpq/ai-coding-workflow
 
 # 安装 workflow bundle 到目标项目
 # Claude Code
-npx superpowers-install claude-code --bundle openspec-superpowers --project-root <project-root>
+npx spec claude-code --bundle openspec-superpowers --project-root <project-root>
 
 # Cursor
-npx superpowers-install cursor --bundle openspec-superpowers --project-root <project-root>
+npx spec cursor --bundle openspec-superpowers --project-root <project-root>
 
 # Codex
-npx superpowers-install codex --bundle openspec-superpowers --codex-home ~/.codex
+npx spec codex --bundle openspec-superpowers --codex-home ~/.codex
 ```
 
 可用 bundle：`openspec-superpowers`、`superpowers-openspec-execution`、`superpowers-feature`、`superpowers-learning`、`openspec-feature`
@@ -352,7 +352,7 @@ sh "<repo-root>/scripts/install-claude-code.sh" --bundle openspec-superpowers --
 
 ```bash
 # 通过 npm（推荐）
-npx superpowers-install memory --project-root <project-root>
+npx spec memory --project-root <project-root>
 
 # 或通过脚本（本地克隆仓库）
 # macOS / Linux
@@ -366,7 +366,7 @@ sh "<repo-root>/scripts/install-superpowers-memory.sh" --project-root <project-r
 
 ```bash
 # 通过 npm（推荐）
-npx superpowers-install memory-integ --tool all --project-root <project-root>
+npx spec memory-integ --tool all --project-root <project-root>
 
 # 或通过脚本（本地克隆仓库）
 # 安装所有工具的集成

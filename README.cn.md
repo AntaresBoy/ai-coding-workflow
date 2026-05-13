@@ -1,4 +1,4 @@
-# Superpowers + OpenSpec Team Skills
+# @axlpq/ai-coding-workflow
 
 这是一套面向 AI 编程助手的带有记忆和自主学工作流技能库，目标很直接：让智能体按流程做事，而不是一上来就直接写代码。用户可以按需组合Superpowers + OpenSpec使用
 
@@ -96,7 +96,7 @@ Use $superpowers-openspec-execution-workflow for this feature.
 team-skills/   workflow 源定义
 dist/          面向具体工具的分发包
 scripts/       安装脚本
-bin/           CLI 入口 (superpowers-install)
+bin/           CLI 入口 (spec)
 ```
 
 ## 快速开始
@@ -104,22 +104,22 @@ bin/           CLI 入口 (superpowers-install)
 ### 通过 npm 安装（推荐）
 
 ```bash
-npm install @your-company/superpowers-openspec-team-skills
+npm install @axlpq/ai-coding-workflow
 
 # 查看可用工作流
-npx superpowers-install list
+npx spec list
 
 # 查看指定工具的可用工作流
-npx superpowers-install list --tool claude-code
+npx spec list --tool claude-code
 
 # 安装 workflow bundle 到你的项目
-npx superpowers-install claude-code --bundle superpowers-openspec-execution --project-root ./my-project
-npx superpowers-install cursor --bundle openspec-superpowers --project-root ./my-project
-npx superpowers-install codex --bundle superpowers-feature --codex-home ~/.codex
+npx spec claude-code --bundle superpowers-openspec-execution --project-root ./my-project
+npx spec cursor --bundle openspec-superpowers --project-root ./my-project
+npx spec codex --bundle superpowers-feature --codex-home ~/.codex
 
 # 安装记忆脚手架和集成
-npx superpowers-install memory --project-root ./my-project
-npx superpowers-install memory-integ --tool all --project-root ./my-project
+npx spec memory --project-root ./my-project
+npx spec memory-integ --tool all --project-root ./my-project
 ```
 
 ### 通过安装脚本安装（适用于本地克隆仓库）

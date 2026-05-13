@@ -18,12 +18,12 @@
 ### 通过 npm 安装（推荐）
 
 ```bash
-npm install @your-company/superpowers-openspec-team-skills
+npm install @axlpq/ai-coding-workflow
 
 # 安装 workflow bundle 到你的项目
-npx superpowers-install claude-code --bundle openspec-superpowers --project-root <project-root>
-npx superpowers-install cursor --bundle openspec-superpowers --project-root <project-root>
-npx superpowers-install codex --bundle openspec-superpowers --codex-home ~/.codex
+npx spec claude-code --bundle openspec-superpowers --project-root <project-root>
+npx spec cursor --bundle openspec-superpowers --project-root <project-root>
+npx spec codex --bundle openspec-superpowers --codex-home ~/.codex
 ```
 
 ### 通过安装脚本安装（备选）
