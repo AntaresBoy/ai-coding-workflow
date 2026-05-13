@@ -6,6 +6,7 @@ PROJECT_ROOT=$(pwd)
 DRY_RUN=0
 BACKUP=0
 FORCE=0
+MERGE=1
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -25,8 +26,16 @@ while [ $# -gt 0 ]; do
       FORCE=1
       shift
       ;;
+    --merge)
+      MERGE=1
+      shift
+      ;;
+    --no-merge)
+      MERGE=0
+      shift
+      ;;
     -h|--help)
-      echo "Usage: sh ./scripts/install-superpowers-memory.sh [--project-root <path>] [--dry-run] [--backup] [--force]"
+      echo "Usage: sh ./scripts/install-superpowers-memory.sh [--project-root <path>] [--dry-run] [--backup] [--force] [--merge]"
       exit 0
       ;;
     *)
@@ -70,7 +79,11 @@ while IFS= read -r SOURCE_PATH; do
   TARGET_PATH="$TARGET_ROOT/$NAME"
   STATUS="new"
   if [ -e "$TARGET_PATH" ]; then
-    STATUS="overwrite"
+    if [ "$MERGE" -eq 1 ]; then
+      STATUS="merge"
+    else
+      STATUS="overwrite"
+    fi
     EXISTING_COUNT=$((EXISTING_COUNT + 1))
   fi
   echo "- $NAME -> $TARGET_PATH [$STATUS]"
@@ -84,8 +97,8 @@ fi
 
 mkdir -p "$TARGET_ROOT"
 
-if [ "$EXISTING_COUNT" -gt 0 ] && [ "$FORCE" -ne 1 ]; then
-  printf "One or more memory files already exist. Continue and overwrite them? (y/N) "
+if [ "$MERGE" -eq 0 ] && [ "$EXISTING_COUNT" -gt 0 ] && [ "$FORCE" -ne 1 ]; then
+  printf "One or more memory files already exist and will be overwritten. Continue? (y/N) "
   read ANSWER
   case "$ANSWER" in
     y|Y|yes|YES) ;;
@@ -110,14 +123,24 @@ while IFS= read -r SOURCE_PATH; do
       mkdir -p "$BACKUP_ROOT/$TIMESTAMP"
       cp -R "$TARGET_PATH" "$BACKUP_ROOT/$TIMESTAMP/"
     fi
-    rm -rf "$TARGET_PATH"
+    if [ "$MERGE" -eq 1 ]; then
+      cp -R "$SOURCE_PATH/." "$TARGET_ROOT/"
+    else
+      rm -rf "$TARGET_PATH"
+      cp -R "$SOURCE_PATH" "$TARGET_ROOT/"
+    fi
+  else
+    cp -R "$SOURCE_PATH" "$TARGET_ROOT/"
   fi
 
-  cp -R "$SOURCE_PATH" "$TARGET_ROOT/"
-
   if [ "$EXISTS_BEFORE" -eq 1 ]; then
-    RESULTS="${RESULTS}- $NAME: overwritten
+    if [ "$MERGE" -eq 1 ]; then
+      RESULTS="${RESULTS}- $NAME: merged
 "
+    else
+      RESULTS="${RESULTS}- $NAME: overwritten
+"
+    fi
   else
     RESULTS="${RESULTS}- $NAME: installed
 "

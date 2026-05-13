@@ -7,6 +7,7 @@ CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
 DRY_RUN=0
 BACKUP=0
 FORCE=0
+MERGE=1
 CHECK_DEPS=0
 
 while [ $# -gt 0 ]; do
@@ -31,12 +32,20 @@ while [ $# -gt 0 ]; do
       FORCE=1
       shift
       ;;
+    --merge)
+      MERGE=1
+      shift
+      ;;
+    --no-merge)
+      MERGE=0
+      shift
+      ;;
     --check-dependencies)
       CHECK_DEPS=1
       shift
       ;;
     -h|--help)
-      echo "Usage: sh ./scripts/install-codex.sh [--bundle <name>] [--codex-home <path>] [--dry-run] [--backup] [--force] [--check-dependencies]"
+      echo "Usage: sh ./scripts/install-codex.sh [--bundle <name>] [--codex-home <path>] [--dry-run] [--backup] [--force] [--merge] [--check-dependencies]"
       exit 0
       ;;
     *)
@@ -102,7 +111,11 @@ while IFS= read -r SOURCE_DIR; do
   TARGET_DIR="$TARGET_ROOT/$NAME"
   STATUS="new"
   if [ -e "$TARGET_DIR" ]; then
-    STATUS="overwrite"
+    if [ "$MERGE" -eq 1 ]; then
+      STATUS="merge"
+    else
+      STATUS="overwrite"
+    fi
     EXISTING_COUNT=$((EXISTING_COUNT + 1))
   fi
   echo "- $NAME -> $TARGET_DIR [$STATUS]"
@@ -120,8 +133,8 @@ if [ "$MISSING_DEPS" -ne 0 ]; then
   echo ""
 fi
 
-if [ "$EXISTING_COUNT" -gt 0 ] && [ "$FORCE" -ne 1 ]; then
-  printf "One or more target skill directories already exist. Continue and overwrite them? (y/N) "
+if [ "$MERGE" -eq 0 ] && [ "$EXISTING_COUNT" -gt 0 ] && [ "$FORCE" -ne 1 ]; then
+  printf "One or more target skill directories already exist and will be overwritten. Continue? (y/N) "
   read ANSWER
   case "$ANSWER" in
     y|Y|yes|YES) ;;
@@ -151,14 +164,24 @@ while IFS= read -r SOURCE_DIR; do
   fi
 
   if [ "$EXISTS_BEFORE" -eq 1 ]; then
-    rm -rf "$TARGET_DIR"
+    if [ "$MERGE" -eq 1 ]; then
+      cp -R "$SOURCE_DIR/." "$TARGET_DIR/"
+    else
+      rm -rf "$TARGET_DIR"
+      cp -R "$SOURCE_DIR" "$TARGET_ROOT/"
+    fi
+  else
+    cp -R "$SOURCE_DIR" "$TARGET_ROOT/"
   fi
 
-  cp -R "$SOURCE_DIR" "$TARGET_ROOT/"
-
   if [ "$EXISTS_BEFORE" -eq 1 ]; then
-    RESULTS="${RESULTS}- $NAME: overwritten
+    if [ "$MERGE" -eq 1 ]; then
+      RESULTS="${RESULTS}- $NAME: merged
 "
+    else
+      RESULTS="${RESULTS}- $NAME: overwritten
+"
+    fi
   else
     RESULTS="${RESULTS}- $NAME: installed
 "

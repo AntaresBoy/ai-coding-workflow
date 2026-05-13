@@ -120,6 +120,12 @@ npx spec codex --bundle superpowers-feature --codex-home ~/.codex
 # 安装记忆脚手架和集成
 npx spec memory --project-root ./my-project
 npx spec memory-integ --tool all --project-root ./my-project
+
+# 在目标项目生成快速入门 README
+npx spec readme --project-root ./my-project
+
+# 查看已安装版本
+npx spec --version
 ```
 
 ### 通过安装脚本安装（适用于本地克隆仓库）
@@ -186,6 +192,8 @@ pwsh -File ./scripts/install-codex.ps1 -Bundle openspec-superpowers -CodexHome "
 - `--dry-run`：只预览将写入什么，不实际复制
 - `--backup`：覆盖前先备份目标文件
 - `--force`：跳过覆盖确认
+- `--merge`：合并模式，将 bundle 内容合入已有目录而非替换整个目录（保留目标中不存在于 bundle 的文件，同名文件仍会被覆盖，默认开启）
+- `--no-merge`：替换模式，替换已有目录而非合并
 - `--check-dependencies`：只检查运行时依赖，例如 `openspec`，不安装文件
 
 当前可用的 shell 安装脚本：

@@ -7,6 +7,7 @@ PROJECT_ROOT=$(pwd)
 DRY_RUN=0
 BACKUP=0
 FORCE=0
+MERGE=1
 
 MARKER_START='<!-- superpowers-memory:start -->'
 MARKER_END='<!-- superpowers-memory:end -->'
@@ -42,8 +43,16 @@ while [ $# -gt 0 ]; do
       FORCE=1
       shift
       ;;
+    --merge)
+      MERGE=1
+      shift
+      ;;
+    --no-merge)
+      MERGE=0
+      shift
+      ;;
     -h|--help)
-      echo "Usage: sh ./scripts/install-superpowers-memory-integration.sh [--tool codex|cursor|claude-code|all] [--project-root <path>] [--dry-run] [--backup] [--force]"
+      echo "Usage: sh ./scripts/install-superpowers-memory-integration.sh [--tool codex|cursor|claude-code|all] [--project-root <path>] [--dry-run] [--backup] [--force] [--merge]"
       exit 0
       ;;
     *)
@@ -210,7 +219,11 @@ while IFS='|' read -r OP_TOOL OP_MODE OP_SOURCE OP_TARGET; do
       backup_if_needed "$OP_TARGET" "$BACKUP_ROOT/$TIMESTAMP"
     fi
     mkdir -p "$(dirname "$OP_TARGET")"
-    cp "$OP_SOURCE" "$OP_TARGET"
+    if [ "$MERGE" -eq 1 ] && [ -d "$OP_SOURCE" ] && [ -d "$OP_TARGET" ]; then
+      cp -R "$OP_SOURCE/." "$OP_TARGET/"
+    else
+      cp "$OP_SOURCE" "$OP_TARGET"
+    fi
   else
     set_managed_block "$OP_TARGET" "$OP_SOURCE" "$BACKUP_ROOT/$TIMESTAMP"
   fi

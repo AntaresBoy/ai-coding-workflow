@@ -49,3 +49,29 @@ npx spec codex --bundle openspec-superpowers --codex-home ~/.codex
 这种模块化设计对维护者很好，但对最终用户并不友好。用户通常会以为复制一个目录就能直接使用，实际上往往还缺依赖。
 
 所以现在真正推荐的安装路径是通过 npm 安装，或使用 `dist/` 下的 bundle。
+
+## 安装脚本参数
+
+所有安装脚本（`.sh` 和 `.ps1`）都支持以下参数：
+
+| Shell 标志 | PowerShell 标志 | 说明 |
+|---|---|---|
+| `--bundle <name>` | `-Bundle <name>` | 选择要安装的 bundle |
+| `--project-root <path>` | `-ProjectRoot <path>` | 目标项目根目录 |
+| `--codex-home <path>` | `-CodexHome <path>` | Codex home 目录 |
+| `--dry-run` | `-DryRun` | 只预览，不实际复制 |
+| `--backup` | `-Backup` | 覆盖前先备份 |
+| `--force` | `-Force` | 跳过覆盖确认 |
+| `--merge` | `-Merge` | 合并模式，将内容合入已有目录而非替换整个目录（保留目标中独有的文件，同名文件仍被覆盖，默认开启） |
+| `--no-merge` | `-NoMerge` | 替换模式，替换已有目录而非合并 |
+| `--check-dependencies` | `-CheckDependencies` | 只检查运行时依赖 |
+
+## 生成使用说明
+
+使用 `readme` 命令可以在目标项目目录中生成快速入门的 `README.md`：
+
+```bash
+npx spec readme --project-root ./my-project
+```
+
+如果目标目录中已存在 `README.md`，则不会覆盖。

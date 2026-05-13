@@ -282,6 +282,14 @@ npx spec codex --bundle openspec-superpowers --codex-home ~/.codex
 
 可用 bundle：`openspec-superpowers`、`superpowers-openspec-execution`、`superpowers-feature`、`superpowers-learning`、`openspec-feature`
 
+```bash
+# Generate a quick-start README in the target project
+npx spec readme --project-root <project-root>
+
+# Check installed version
+npx spec --version
+```
+
 #### 方式二：通过安装脚本安装（适用于本地克隆仓库）
 
 ##### Codex
@@ -406,6 +414,8 @@ sh "<repo-root>/scripts/install-superpowers-memory-integration.sh" --tool all --
 | 预览模式 | `--dry-run` | `-DryRun` | 只预览，不实际复制 |
 | 备份 | `--backup` | `-Backup` | 覆盖前先备份 |
 | 跳过确认 | `--force` | `-Force` | 跳过覆盖确认 |
+| 合并模式 | `--merge` | `-Merge` | 合入已有目录而非替换（保留目标中独有的文件，同名文件仍被覆盖） |
+| 替换模式 | `--no-merge` | `-NoMerge` | 替换已有目录而非合并（默认为合并模式） |
 | 检查依赖 | `--check-dependencies` | `-CheckDependencies` | 只检查运行时依赖 |
 
 ### 6.5 辅助脚本

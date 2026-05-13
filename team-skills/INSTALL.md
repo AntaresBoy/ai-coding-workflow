@@ -49,3 +49,29 @@ Some source workflows are orchestrators. They are designed for maintainability a
 That modular design is useful for maintainers, but it can confuse users who expect a single copied folder to be immediately usable.
 
 The `dist/` bundles are the supported installation path for real usage.
+
+## Install Script Parameters
+
+All install scripts (`.sh` and `.ps1`) support these parameters:
+
+| Shell flag | PowerShell flag | Description |
+|---|---|---|
+| `--bundle <name>` | `-Bundle <name>` | Select bundle to install |
+| `--project-root <path>` | `-ProjectRoot <path>` | Target project root directory |
+| `--codex-home <path>` | `-CodexHome <path>` | Codex home directory |
+| `--dry-run` | `-DryRun` | Preview only, do not copy files |
+| `--backup` | `-Backup` | Backup existing files before overwriting |
+| `--force` | `-Force` | Skip confirmation prompts |
+| `--merge` | `-Merge` | Merge into existing directories instead of replacing them (keeps files only in target, overwrites same-name files, default on) |
+| `--no-merge` | `-NoMerge` | Replace existing directories instead of merging |
+| `--check-dependencies` | `-CheckDependencies` | Only check runtime dependencies |
+
+## Generating a Usage README
+
+Use the `readme` command to generate a quick-start `README.md` in the target project directory:
+
+```bash
+npx spec readme --project-root ./my-project
+```
+
+If `README.md` already exists, it will not be overwritten.

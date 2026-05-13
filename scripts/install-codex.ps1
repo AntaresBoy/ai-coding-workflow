@@ -5,10 +5,14 @@ param(
   [switch]$DryRun,
   [switch]$Backup,
   [switch]$Force,
+  [switch]$Merge,
+  [switch]$NoMerge,
   [switch]$CheckDependencies
 )
 
 $ErrorActionPreference = "Stop"
+
+$useMerge = -not $NoMerge
 
 $repoRoot = if ($env:SUPERPOWERS_PKG_ROOT) { $env:SUPERPOWERS_PKG_ROOT } else { Split-Path -Parent $PSScriptRoot }
 . (Join-Path $PSScriptRoot "common\dependency-check.ps1")
@@ -57,7 +61,7 @@ Write-Host "Install target: $targetRoot"
 Write-Host ""
 Write-Host "Install plan:"
 $installPlan | ForEach-Object {
-  $status = if ($_.Exists) { "overwrite" } else { "new" }
+  $status = if ($_.Exists) { if ($useMerge) { "merge" } else { "overwrite" } } else { "new" }
   Write-Host ("- {0} -> {1} [{2}]" -f $_.Name, $_.Target, $status)
 }
 
@@ -73,8 +77,8 @@ if ($missingDependencies.Count -gt 0) {
   Write-Host ""
 }
 
-if (($installPlan | Where-Object { $_.Exists }).Count -gt 0 -and -not $Force) {
-  $answer = Read-Host "One or more target skill directories already exist. Continue and overwrite them? (y/N)"
+if (-not $useMerge -and ($installPlan | Where-Object { $_.Exists }).Count -gt 0 -and -not $Force) {
+  $answer = Read-Host "One or more target skill directories already exist and will be overwritten. Continue? (y/N)"
   if ($answer -notin @("y", "Y", "yes", "YES")) {
     Write-Host "Install cancelled."
     return
@@ -91,10 +95,14 @@ foreach ($item in $installPlan) {
     Copy-Item -Recurse -Force $item.Target $backupDir
   }
 
-  Copy-Item -Recurse -Force $item.Source $targetRoot
+  if ($item.Exists -and $useMerge) {
+    Copy-Item -Recurse -Force (Join-Path $item.Source "*") $item.Target
+  } else {
+    Copy-Item -Recurse -Force $item.Source $targetRoot
+  }
   $results += [PSCustomObject]@{
     Name = $item.Name
-    Action = if ($item.Exists) { "overwritten" } else { "installed" }
+    Action = if ($item.Exists) { if ($useMerge) { "merged" } else { "overwritten" } } else { "installed" }
     Target = $item.Target
   }
 }

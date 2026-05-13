@@ -4,10 +4,14 @@ param(
   [string]$ProjectRoot = (Get-Location).Path,
   [switch]$DryRun,
   [switch]$Backup,
-  [switch]$Force
+  [switch]$Force,
+  [switch]$Merge,
+  [switch]$NoMerge
 )
 
 $ErrorActionPreference = "Stop"
+
+$useMerge = -not $NoMerge
 
 $repoRoot = if ($env:SUPERPOWERS_PKG_ROOT) { $env:SUPERPOWERS_PKG_ROOT } else { Split-Path -Parent $PSScriptRoot }
 $templateRoot = Join-Path $repoRoot "templates\superpowers-memory\integrations"
@@ -142,7 +146,11 @@ foreach ($op in $operations) {
     if ($parent) {
       New-Item -ItemType Directory -Force -Path $parent | Out-Null
     }
-    Copy-Item -Force $op.Source $op.Target
+    if ($useMerge -and (Test-Path $op.Source -PathType Container) -and (Test-Path $op.Target -PathType Container)) {
+      Copy-Item -Recurse -Force (Join-Path $op.Source "*") $op.Target
+    } else {
+      Copy-Item -Force $op.Source $op.Target
+    }
   } else {
     $block = Get-Content -Raw $op.Source
     Set-ManagedBlock -TargetPath $op.Target -BlockContent $block -BackupDir $backupDir -BackupMode:$Backup
