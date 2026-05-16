@@ -5,7 +5,8 @@
   "installTarget": ".codex/skills",
   "description": "Standalone Codex skill bundle for the openspec-superpowers workflow.",
   "runtimeRequirements": [
-    "openspec-cli"
+    "openspec-cli",
+    "superpowers"
   ],
   "contents": [
     "skills/openspec-superpowers-workflow"

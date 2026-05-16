@@ -25,6 +25,7 @@ dependencies:
     - verification-before-completion
 runtime_requirements:
   - openspec-cli
+  - superpowers
 outputs:
   - docs/superpowers/specs/
   - docs/superpowers/plans/

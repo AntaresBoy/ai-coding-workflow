@@ -15,7 +15,8 @@ activation:
 dependencies:
   workflows: []
   external_skills: []
-runtime_requirements: []
+runtime_requirements:
+  - superpowers
 outputs:
   - .superpowers-memory/PROJECT_CONTEXT.md
   - .superpowers-memory/CURRENT_STATE.md

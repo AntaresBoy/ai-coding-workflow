@@ -12,6 +12,35 @@ function Read-BundleManifest {
   return Get-Content $manifestPath -Raw | ConvertFrom-Json
 }
 
+$Script:Deps = @{
+  "openspec-cli" = @{
+    Name = "OpenSpec"
+    CliCmd = "openspec"
+    NpmPkg = "@fission-ai/openspec"
+    InstallHint = "npm install -g @fission-ai/openspec@latest"
+    AutoInstallable = $true
+  }
+  "superpowers" = @{
+    Name = "Superpowers"
+    CheckPath = "writing-plans\SKILL.md"
+    InstallHint = "请在 Claude Code 中执行: /plugin install superpowers@claude-plugins-official"
+    AutoInstallable = $false
+  }
+}
+
+function Test-SuperpowersInstalled {
+  $candidatePaths = @(
+    (Join-Path $HOME ".claude\skills\$($Script:Deps["superpowers"].CheckPath)"),
+    (Join-Path $HOME ".agents\skills\$($Script:Deps["superpowers"].CheckPath)")
+  )
+  foreach ($path in $candidatePaths) {
+    if (Test-Path $path) {
+      return $true
+    }
+  }
+  return $false
+}
+
 function Test-RuntimeDependency {
   param(
     [Parameter(Mandatory = $true)]
@@ -20,7 +49,10 @@ function Test-RuntimeDependency {
 
   switch ($Requirement) {
     "openspec-cli" {
-      return $null -ne (Get-Command openspec -ErrorAction SilentlyContinue)
+      return $null -ne (Get-Command $Script:Deps["openspec-cli"].CliCmd -ErrorAction SilentlyContinue)
+    }
+    "superpowers" {
+      return Test-SuperpowersInstalled
     }
     default {
       return $false
@@ -39,8 +71,11 @@ function Get-DependencyResults {
     return $results
   }
   foreach ($req in $Manifest.runtimeRequirements) {
+    $dep = if ($Script:Deps.ContainsKey($req)) { $Script:Deps[$req] } else { $null }
     $results += [PSCustomObject]@{
       Name = $req
+      DisplayName = if ($dep) { $dep.Name } else { $req }
+      InstallHint = if ($dep) { $dep.InstallHint } else { $null }
       Available = (Test-RuntimeDependency $req)
     }
   }
@@ -61,7 +96,10 @@ function Show-DependencyResults {
     Write-Host "Runtime dependency check:"
     $DependencyResults | ForEach-Object {
       $status = if ($_.Available) { "ok" } else { "missing" }
-      Write-Host ("- {0} [{1}]" -f $_.Name, $status)
+      Write-Host ("- {0} ({1}) [{2}]" -f $_.DisplayName, $_.Name, $status)
+      if (-not $_.Available -and $_.InstallHint) {
+        Write-Host ("  install: {0}" -f $_.InstallHint)
+      }
     }
     Write-Host ""
   }

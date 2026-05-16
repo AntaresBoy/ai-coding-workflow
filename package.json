@@ -1,12 +1,13 @@
 {
   "name": "@axlpq/ai-coding-workflow",
-  "version": "1.0.5-beta1",
+  "version": "1.0.5-beta2",
   "description": "AI coding assistant workflow skill library — Superpowers + OpenSpec team skills for Codex, Cursor, and Claude Code",
   "bin": {
     "spec": "./bin/spec.js"
   },
   "scripts": {
     "build": "node scripts/build-dist.js",
+    "test": "node scripts/test-spec-init.js",
     "postinstall": "echo 'AI coding workflow skills installed. Run: npx spec --help'",
     "prepublishOnly": "npm run build && node -e \"const fs=require('fs'); ['dist','team-skills','scripts','templates'].forEach(d=>{if(!fs.existsSync(d)){console.error('Missing: '+d);process.exit(1)}})\""
   },

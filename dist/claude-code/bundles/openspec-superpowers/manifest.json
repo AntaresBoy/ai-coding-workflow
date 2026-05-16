@@ -4,7 +4,8 @@
   "type": "bundle",
   "installTarget": "project-root",
   "runtimeRequirements": [
-    "openspec-cli"
+    "openspec-cli",
+    "superpowers"
   ],
   "contents": [
     ".claude/commands/openspec-superpowers-workflow.md",

@@ -86,6 +86,18 @@ function buildManifest(bundleName, tool, runtimeRequirements, contents) {
   return manifest;
 }
 
+function removeDsStoreFiles(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.name === ".DS_Store") {
+      fs.rmSync(fullPath, { force: true });
+    } else if (entry.isDirectory()) {
+      removeDsStoreFiles(fullPath);
+    }
+  }
+}
+
 function generateCodexBundle(workflowDir, workflowName, bundleName, meta) {
   const skillMdPath = path.join(workflowDir, "SKILL.md");
   if (!fs.existsSync(skillMdPath)) {
@@ -203,6 +215,7 @@ function generateClaudeMd(workflowName, bodyContent) {
 console.log("Building dist/ from team-skills/ source...\n");
 
 let errorCount = 0;
+removeDsStoreFiles(DIST_DIR);
 
 for (const workflowDirName of WORKFLOW_DIRS) {
   const workflowDir = path.join(TEAM_SKILLS_DIR, workflowDirName);
@@ -241,5 +254,6 @@ for (const workflowDirName of WORKFLOW_DIRS) {
   }
 }
 
+removeDsStoreFiles(DIST_DIR);
 console.log(`\nBuild complete.${errorCount > 0 ? ` ${errorCount} error(s).` : ""}`);
 process.exit(errorCount > 0 ? 1 : 0);

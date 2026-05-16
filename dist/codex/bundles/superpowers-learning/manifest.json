@@ -4,6 +4,9 @@
   "type": "bundle",
   "installTarget": ".codex/skills",
   "description": "Standalone Codex skill bundle for the superpowers-learning workflow.",
+  "runtimeRequirements": [
+    "superpowers"
+  ],
   "contents": [
     "skills/superpowers-learning-workflow"
   ]

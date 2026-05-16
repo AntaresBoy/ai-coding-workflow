@@ -3,6 +3,9 @@
   "tool": "cursor",
   "type": "bundle",
   "installTarget": "project-root",
+  "runtimeRequirements": [
+    "superpowers"
+  ],
   "contents": [
     ".cursor/rules/superpowers-learning-workflow.mdc",
     "AGENTS.md"

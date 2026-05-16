@@ -19,7 +19,8 @@ dependencies:
     - using-git-worktrees
     - test-driven-development
     - verification-before-completion
-runtime_requirements: []
+runtime_requirements:
+  - superpowers
 outputs:
   - docs/superpowers/specs/
   - docs/superpowers/plans/

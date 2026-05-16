@@ -13,6 +13,7 @@ function usage() {
 Usage: npx spec <command> [options]
 
 Commands:
+  init           Initialize workflow files for one or more tools in a project
   list           List available workflow bundles and their descriptions
   claude-code    Install workflow bundle into Claude Code project
   cursor         Install workflow bundle into Cursor project
@@ -28,6 +29,7 @@ Options:
                          superpowers-feature, openspec-feature, superpowers-learning
   --project-root <path>  Target project root directory (default: cwd)
   --codex-home <path>    Codex home directory (default: ~/.codex)
+  --tools <tools>        Tools for init, comma-separated: claude-code|codex|cursor|all
   --tool <tool>          Tool for memory-integ: codex|cursor|claude-code|all (default: all)
   --dry-run              Preview only, do not copy files
   --backup               Backup existing files before overwriting
@@ -38,6 +40,8 @@ Options:
   -h, --help             Show this help message
 
 Examples:
+  npx spec init --tools claude-code,codex,cursor
+  npx spec init --tools all --project-root ./my-project
   npx spec list
   npx spec list --tool claude-code
   npx spec claude-code --bundle superpowers-openspec-execution --project-root ./my-project
@@ -109,6 +113,90 @@ function runScript(scriptName, extraArgs) {
       process.exit(e.status || 1);
     }
   }
+}
+
+function getArgValue(args, name, fallback) {
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === name && args[i + 1]) {
+      return args[i + 1];
+    }
+    if (args[i].startsWith(`${name}=`)) {
+      return args[i].slice(name.length + 1);
+    }
+  }
+  return fallback;
+}
+
+function hasFlag(args, name) {
+  return args.includes(name);
+}
+
+function parseInitTools(rawTools) {
+  const aliases = {
+    claude: "claude-code",
+    "claude-code": "claude-code",
+    "calude-code": "claude-code",
+    codex: "codex",
+    cursor: "cursor",
+  };
+  const validTools = ["claude-code", "codex", "cursor"];
+  const pieces = rawTools.split(",").map(t => t.trim()).filter(Boolean);
+  const requested = pieces.includes("all") ? validTools : pieces;
+  const normalized = [];
+
+  for (const tool of requested) {
+    const mapped = aliases[tool];
+    if (!mapped) {
+      console.error(`Unknown init tool: ${tool}. Valid options: ${validTools.join(", ")}, all`);
+      process.exit(1);
+    }
+    if (!normalized.includes(mapped)) {
+      normalized.push(mapped);
+    }
+  }
+
+  if (normalized.length === 0) {
+    console.error("No tools specified for init.");
+    process.exit(1);
+  }
+
+  return normalized;
+}
+
+function runInit(args) {
+  const projectRoot = path.resolve(getArgValue(args, "--project-root", process.cwd()));
+  const bundle = getArgValue(args, "--bundle", "openspec-superpowers");
+  const tools = parseInitTools(getArgValue(args, "--tools", "claude-code,codex,cursor"));
+  const passthroughFlags = ["--dry-run", "--backup", "--force", "--merge", "--no-merge", "--check-dependencies"]
+    .filter(flag => hasFlag(args, flag));
+
+  fs.mkdirSync(projectRoot, { recursive: true });
+
+  console.log(`spec init — workflow setup`);
+  console.log(`Project root: ${projectRoot}`);
+  console.log(`Bundle: ${bundle}`);
+  console.log(`Tools: ${tools.join(", ")}`);
+  console.log("");
+
+  for (const tool of tools) {
+    console.log(`==> Initializing ${tool}`);
+    if (tool === "codex") {
+      runScript("install-codex", [
+        "--bundle", bundle,
+        "--codex-home", path.join(projectRoot, ".codex"),
+        ...passthroughFlags,
+      ]);
+    } else {
+      runScript(`install-${tool}`, [
+        "--bundle", bundle,
+        "--project-root", projectRoot,
+        ...passthroughFlags,
+      ]);
+    }
+    console.log("");
+  }
+
+  console.log("spec init complete.");
 }
 
 const args = process.argv.slice(2);
@@ -335,6 +423,11 @@ Use $<workflow-name> for this feature.
 
   fs.writeFileSync(targetFile, readmeContent, "utf8");
   console.log(`Generated README.md at: ${targetFile}`);
+  process.exit(0);
+}
+
+if (command === "init") {
+  runInit(rest);
   process.exit(0);
 }
 

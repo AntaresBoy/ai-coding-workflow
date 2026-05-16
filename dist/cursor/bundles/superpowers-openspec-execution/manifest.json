@@ -4,7 +4,8 @@
   "type": "bundle",
   "installTarget": "project-root",
   "runtimeRequirements": [
-    "openspec-cli"
+    "openspec-cli",
+    "superpowers"
   ],
   "contents": [
     ".cursor/rules/superpowers-openspec-execution-workflow.mdc",
