@@ -38,6 +38,13 @@ if ($CheckDependencies) {
   return
 }
 
+if ($missingDependencies.Count -gt 0 -and -not $DryRun) {
+  Offer-DependencyInstalls -DependencyResults $dependencyResults
+  $dependencyResults = Get-DependencyResults -Manifest $manifest
+  Show-DependencyResults -DependencyResults $dependencyResults
+  $missingDependencies = Get-MissingDependencies -DependencyResults $dependencyResults
+}
+
 New-Item -ItemType Directory -Force -Path $targetRoot | Out-Null
 
 $sourceDirs = Get-ChildItem $skillsRoot -Directory

@@ -8,6 +8,7 @@ const { spawnSync } = require("child_process");
 
 const repoRoot = path.resolve(__dirname, "..");
 const specBin = path.join(repoRoot, "bin", "spec.js");
+const installCodexScript = path.join(repoRoot, "scripts", "install-codex.sh");
 const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "spec-init-"));
 
 const result = spawnSync(process.execPath, [
@@ -86,3 +87,35 @@ assert.ok(
   fs.existsSync(path.join(cwdRoot, ".cursor", "rules", "openspec-superpowers-workflow.mdc")),
   "when --project-root is omitted, cursor files should be generated under cwd"
 );
+
+const missingHome = fs.mkdtempSync(path.join(os.tmpdir(), "spec-init-missing-home-"));
+const missingTarget = fs.mkdtempSync(path.join(os.tmpdir(), "spec-init-missing-target-"));
+const missingResult = spawnSync("sh", [
+  installCodexScript,
+  "--bundle",
+  "openspec-superpowers",
+  "--codex-home",
+  path.join(missingTarget, ".codex"),
+  "--force",
+], {
+  cwd: repoRoot,
+  env: {
+    ...process.env,
+    HOME: missingHome,
+    PATH: "/usr/bin:/bin",
+    SUPERPOWERS_PKG_ROOT: repoRoot,
+  },
+  input: "n\nn\n",
+  encoding: "utf8",
+});
+
+assert.strictEqual(
+  missingResult.status,
+  0,
+  `install should continue after declining dependency installs\nstdout:\n${missingResult.stdout}\nstderr:\n${missingResult.stderr}`
+);
+assert.match(missingResult.stdout, /❌ OpenSpec/, "missing OpenSpec should be marked with a red icon");
+assert.match(missingResult.stdout, /❌ Superpowers/, "missing Superpowers should be marked with a red icon");
+assert.match(missingResult.stdout, /⚠️ install:/, "missing dependencies should show warning install hints");
+assert.match(missingResult.stdout, /是否现在执行安装命令/, "auto-installable dependency should ask before executing install command");
+assert.match(missingResult.stdout, /是否查看安装指令/, "manual dependency should ask before showing install instruction");

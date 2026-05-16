@@ -36,6 +36,13 @@ if ($CheckDependencies) {
   return
 }
 
+if ($missingDependencies.Count -gt 0 -and -not $DryRun) {
+  Offer-DependencyInstalls -DependencyResults $dependencyResults
+  $dependencyResults = Get-DependencyResults -Manifest $manifest
+  Show-DependencyResults -DependencyResults $dependencyResults
+  $missingDependencies = Get-MissingDependencies -DependencyResults $dependencyResults
+}
+
 $entries = Get-ChildItem $bundleRoot -Force | Where-Object { $_.Name -ne "manifest.json" -and $_.Name -ne "README.md" }
 if (-not $entries) {
   throw "No installable files found in bundle: $bundleRoot"

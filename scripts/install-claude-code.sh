@@ -84,6 +84,15 @@ if [ "$CHECK_DEPS" -eq 1 ]; then
   exit 0
 fi
 
+if [ "$MISSING_DEPS" -ne 0 ] && [ "$DRY_RUN" -eq 0 ]; then
+  offer_dependency_installs "$MANIFEST" || true
+  if ! show_dependency_results "$MANIFEST"; then
+    MISSING_DEPS=1
+  else
+    MISSING_DEPS=0
+  fi
+fi
+
 INSTALL_PLAN=$(find "$BUNDLE_ROOT" -mindepth 1 -maxdepth 1 ! -name manifest.json ! -name README.md | sort)
 if [ -z "$INSTALL_PLAN" ]; then
   echo "No installable files found in bundle: $BUNDLE_ROOT" >&2
