@@ -10,6 +10,10 @@ const repoRoot = path.resolve(__dirname, "..");
 const specBin = path.join(repoRoot, "bin", "spec.js");
 const installCodexScript = path.join(repoRoot, "scripts", "install-codex.sh");
 const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "spec-init-"));
+const baseEnv = {
+  ...process.env,
+  SPEC_DISABLE_UPDATE_CHECK: "1",
+};
 
 const result = spawnSync(process.execPath, [
   specBin,
@@ -20,6 +24,7 @@ const result = spawnSync(process.execPath, [
   tmpRoot,
 ], {
   cwd: tmpRoot,
+  env: baseEnv,
   encoding: "utf8",
 });
 
@@ -54,6 +59,7 @@ const aliasResult = spawnSync(process.execPath, [
   aliasRoot,
 ], {
   cwd: aliasRoot,
+  env: baseEnv,
   encoding: "utf8",
 });
 
@@ -75,6 +81,7 @@ const cwdResult = spawnSync(process.execPath, [
   "cursor",
 ], {
   cwd: cwdRoot,
+  env: baseEnv,
   encoding: "utf8",
 });
 
@@ -119,3 +126,134 @@ assert.match(missingResult.stdout, /❌ Superpowers/, "missing Superpowers shoul
 assert.match(missingResult.stdout, /⚠️ install:/, "missing dependencies should show warning install hints");
 assert.match(missingResult.stdout, /是否现在执行安装命令/, "auto-installable dependency should ask before executing install command");
 assert.match(missingResult.stdout, /是否查看安装指令/, "manual dependency should ask before showing install instruction");
+
+function makeFakeNpm(latestVersion) {
+  const fakeRoot = fs.mkdtempSync(path.join(os.tmpdir(), "spec-fake-npm-"));
+  const logFile = path.join(fakeRoot, "npm.log");
+  const fakeNpm = path.join(fakeRoot, process.platform === "win32" ? "npm.cmd" : "npm");
+  const script = process.platform === "win32"
+    ? `@echo off
+node "%~dp0\\fake-npm.js" %*
+`
+    : `#!/bin/sh
+exec "${process.execPath}" "$(dirname "$0")/fake-npm.js" "$@"
+`;
+  fs.writeFileSync(fakeNpm, script, "utf8");
+  if (process.platform !== "win32") {
+    fs.chmodSync(fakeNpm, 0o755);
+  }
+  fs.writeFileSync(path.join(fakeRoot, "fake-npm.js"), `
+const fs = require("fs");
+const logFile = ${JSON.stringify(logFile)};
+fs.appendFileSync(logFile, process.argv.slice(2).join(" ") + "\\n");
+const args = process.argv.slice(2);
+if (args[0] === "view") {
+  console.log(${JSON.stringify(latestVersion)});
+  process.exit(0);
+}
+if (args[0] === "install" && args[1] === "-g") {
+  process.exit(0);
+}
+process.exit(1);
+`, "utf8");
+  return { fakeNpm, logFile };
+}
+
+function readLog(logFile) {
+  return fs.existsSync(logFile)
+    ? fs.readFileSync(logFile, "utf8").trim().split(/\n/).filter(Boolean)
+    : [];
+}
+
+const promptStateDir = fs.mkdtempSync(path.join(os.tmpdir(), "spec-update-state-"));
+const yesNpm = makeFakeNpm("99.0.0");
+const yesResult = spawnSync(process.execPath, [
+  specBin,
+  "list",
+], {
+  cwd: repoRoot,
+  env: {
+    ...process.env,
+    SPEC_NPM_BIN: yesNpm.fakeNpm,
+    SPEC_UPDATE_STATE_DIR: promptStateDir,
+  },
+  input: "y\n",
+  encoding: "utf8",
+});
+
+assert.strictEqual(
+  yesResult.status,
+  0,
+  `spec list should continue after accepting update\nstdout:\n${yesResult.stdout}\nstderr:\n${yesResult.stderr}`
+);
+assert.match(yesResult.stdout, /检测到 spec 新版本/, "outdated spec should show update prompt");
+assert.deepStrictEqual(readLog(yesNpm.logFile), [
+  "view @axlpq/ai-coding-workflow version",
+  "install -g @axlpq/ai-coding-workflow@latest",
+]);
+
+const declineStateDir = fs.mkdtempSync(path.join(os.tmpdir(), "spec-update-decline-state-"));
+const noNpm = makeFakeNpm("99.0.0");
+const noResult = spawnSync(process.execPath, [
+  specBin,
+  "list",
+], {
+  cwd: repoRoot,
+  env: {
+    ...process.env,
+    SPEC_NPM_BIN: noNpm.fakeNpm,
+    SPEC_UPDATE_STATE_DIR: declineStateDir,
+  },
+  input: "n\n",
+  encoding: "utf8",
+});
+
+assert.strictEqual(
+  noResult.status,
+  0,
+  `spec list should continue after declining update\nstdout:\n${noResult.stdout}\nstderr:\n${noResult.stderr}`
+);
+assert.match(noResult.stdout, /已跳过本次更新/, "declining update should be acknowledged");
+assert.deepStrictEqual(readLog(noNpm.logFile), [
+  "view @axlpq/ai-coding-workflow version",
+]);
+
+const secondNoResult = spawnSync(process.execPath, [
+  specBin,
+  "list",
+], {
+  cwd: repoRoot,
+  env: {
+    ...process.env,
+    SPEC_NPM_BIN: noNpm.fakeNpm,
+    SPEC_UPDATE_STATE_DIR: declineStateDir,
+  },
+  encoding: "utf8",
+});
+
+assert.strictEqual(
+  secondNoResult.status,
+  0,
+  `spec list should not prompt again after declining update\nstdout:\n${secondNoResult.stdout}\nstderr:\n${secondNoResult.stderr}`
+);
+assert.doesNotMatch(secondNoResult.stdout, /检测到 spec 新版本/, "declined update should not prompt again");
+assert.deepStrictEqual(readLog(noNpm.logFile), [
+  "view @axlpq/ai-coding-workflow version",
+]);
+
+const helpNpm = makeFakeNpm("99.0.0");
+const helpResult = spawnSync(process.execPath, [
+  specBin,
+  "--help",
+], {
+  cwd: repoRoot,
+  env: {
+    ...process.env,
+    SPEC_NPM_BIN: helpNpm.fakeNpm,
+    SPEC_UPDATE_STATE_DIR: fs.mkdtempSync(path.join(os.tmpdir(), "spec-update-help-state-")),
+  },
+  encoding: "utf8",
+});
+
+assert.strictEqual(helpResult.status, 0, "spec --help should exit successfully");
+assert.deepStrictEqual(readLog(helpNpm.logFile), [], "spec --help should not check npm version");

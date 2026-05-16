@@ -3,6 +3,7 @@
 const { execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 
 const PKG_ROOT = path.resolve(__dirname, "..");
 const SCRIPTS_DIR = path.join(PKG_ROOT, "scripts");
@@ -131,6 +132,146 @@ function hasFlag(args, name) {
   return args.includes(name);
 }
 
+function parseSemver(version) {
+  const clean = String(version || "").trim().replace(/^v/, "").split("+")[0];
+  const [main, prerelease = ""] = clean.split("-", 2);
+  const parts = main.split(".").map(part => Number.parseInt(part, 10));
+  if (parts.length < 3 || parts.some(Number.isNaN)) {
+    return null;
+  }
+  return { major: parts[0], minor: parts[1], patch: parts[2], prerelease };
+}
+
+function comparePrerelease(a, b) {
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+
+  const aParts = a.split(".");
+  const bParts = b.split(".");
+  const len = Math.max(aParts.length, bParts.length);
+  for (let i = 0; i < len; i++) {
+    if (aParts[i] === undefined) return -1;
+    if (bParts[i] === undefined) return 1;
+    const aNum = Number.parseInt(aParts[i], 10);
+    const bNum = Number.parseInt(bParts[i], 10);
+    const bothNumeric = String(aNum) === aParts[i] && String(bNum) === bParts[i];
+    if (bothNumeric && aNum !== bNum) return aNum > bNum ? 1 : -1;
+    if (aParts[i] !== bParts[i]) return aParts[i] > bParts[i] ? 1 : -1;
+  }
+  return 0;
+}
+
+function compareSemver(a, b) {
+  const parsedA = parseSemver(a);
+  const parsedB = parseSemver(b);
+  if (!parsedA || !parsedB) {
+    return String(a).trim() === String(b).trim() ? 0 : -1;
+  }
+
+  for (const key of ["major", "minor", "patch"]) {
+    if (parsedA[key] !== parsedB[key]) {
+      return parsedA[key] > parsedB[key] ? 1 : -1;
+    }
+  }
+  return comparePrerelease(parsedA.prerelease, parsedB.prerelease);
+}
+
+function getUpdateStateDir() {
+  if (process.env.SPEC_UPDATE_STATE_DIR) {
+    return process.env.SPEC_UPDATE_STATE_DIR;
+  }
+  return path.join(os.homedir(), ".spec");
+}
+
+function getUpdateStatePath() {
+  return path.join(getUpdateStateDir(), "update-check.json");
+}
+
+function hasDeclinedUpdatePrompt() {
+  try {
+    const statePath = getUpdateStatePath();
+    if (!fs.existsSync(statePath)) return false;
+    const state = JSON.parse(fs.readFileSync(statePath, "utf8"));
+    return state && state.declined === true;
+  } catch {
+    return false;
+  }
+}
+
+function rememberDeclinedUpdatePrompt(latestVersion) {
+  try {
+    const stateDir = getUpdateStateDir();
+    fs.mkdirSync(stateDir, { recursive: true });
+    fs.writeFileSync(getUpdateStatePath(), JSON.stringify({
+      declined: true,
+      latestVersion,
+      declinedAt: new Date().toISOString(),
+    }, null, 2), "utf8");
+  } catch {}
+}
+
+function readPromptAnswer() {
+  const chunks = [];
+  const buffer = Buffer.alloc(1);
+
+  try {
+    while (true) {
+      const bytesRead = fs.readSync(0, buffer, 0, 1, null);
+      if (bytesRead === 0) break;
+      const char = buffer.toString("utf8", 0, bytesRead);
+      if (char === "\n" || char === "\r") break;
+      chunks.push(char);
+    }
+  } catch {
+    return "";
+  }
+
+  return chunks.join("").trim().toLowerCase();
+}
+
+function checkForSpecUpdate() {
+  if (process.env.SPEC_DISABLE_UPDATE_CHECK === "1" || hasDeclinedUpdatePrompt()) {
+    return;
+  }
+
+  const packageName = PKG_JSON.name;
+  const npmBin = process.env.SPEC_NPM_BIN || "npm";
+  let latestVersion;
+  try {
+    latestVersion = execFileSync(npmBin, ["view", packageName, "version"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 3000,
+    }).trim();
+  } catch {
+    return;
+  }
+
+  if (!latestVersion || compareSemver(latestVersion, PKG_JSON.version) <= 0) {
+    return;
+  }
+
+  console.log(`检测到 spec 新版本：当前 ${PKG_JSON.version}，最新 ${latestVersion}`);
+  process.stdout.write(`是否安装最新版本的 spec 包？[y/N] `);
+
+  const answer = readPromptAnswer();
+
+  if (answer === "y" || answer === "yes") {
+    console.log(`正在安装 ${packageName}@latest ...`);
+    try {
+      execFileSync(npmBin, ["install", "-g", `${packageName}@latest`], { stdio: "inherit" });
+      console.log("spec 已更新到最新版本。");
+    } catch (e) {
+      console.error("spec 自动更新失败，将继续执行当前命令。");
+    }
+    return;
+  }
+
+  rememberDeclinedUpdatePrompt(latestVersion);
+  console.log("已跳过本次更新，后续启动 spec 时不再提示。");
+}
+
 function parseInitTools(rawTools) {
   const aliases = {
     claude: "claude-code",
@@ -213,6 +354,8 @@ if (args[0] === "-v" || args[0] === "--version") {
 
 const command = args[0];
 const rest = args.slice(1);
+
+checkForSpecUpdate();
 
 function listBundles(toolFilter) {
   const distDir = path.join(PKG_ROOT, "dist");
